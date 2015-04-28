@@ -7,4 +7,4 @@ class cs:
         self.battery_remaining = 99
         self.battery_voltage = 60
         self.sonarrange = 0
-
+        self.yaw = 0

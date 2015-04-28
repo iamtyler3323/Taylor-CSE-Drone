@@ -1,5 +1,5 @@
 __author__ = 'Tyler'
-from random import *
+from math import *
 
 class Hover:
     def __init__(self, target, start_throttle):
@@ -73,7 +73,49 @@ class VertSpeed:
         if self.debug is True:
             print(string)
 
+class Turn:
+    
+    def __init__(self):
+        pass
 
+    def turnTo(self, cs, dir, timeout):
+        while (not (dir is self.direction(cs))) or timeout <= 0:
+            #cs.yaw += randint(0,40)
+            #Script.SendRC(4,2000,True)
+            #Script.Sleep(500)
+            timeout -= 100
+            Script.Sleep(100)
+            print("Need to face {0} and currently facing {1}".format(dir, self.direction(cs)))
+        print("Hit direction or timout.")
+        Script.SendRC(4,1500,True)
+
+    def get_dir_to(self, lat1, long1, lat2, long2):
+        margin = pi/90; # 2 degree tolerance for cardinal directions
+        o = lat1 - lat2;
+        a = long1 - long2;
+        angle = atan2(o, a);
+
+        if -margin < angle < margin:
+                return "E"
+        elif pi/2 - margin < angle < pi/2 + margin:
+                return "N"
+        elif pi - margin < angle < -pi + margin:
+                return "W"
+        elif -pi/2 - margin < angle < -pi/2 + margin:
+                return "S"
+        if 0 < angle < pi/2:
+            return "NE"
+        elif pi/2 < angle < pi:
+            return "NW"
+        elif -pi/2 < angle < 0:
+            return "SE"
+        else:
+            return "SW"
+
+    def direction(self, cs):
+        directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"]
+        x = cs.yaw
+        return directions[int(round(((x % 360) / 45)))]
 
 
 # Hover types
@@ -87,40 +129,60 @@ hover_class = Hover(1.0, 1500)
 if hover_type == 0:
     hover = VertSpeed(hover_class, True)
 
+print("Start")
+goal = Turn().get_dir_to(cs.lat,cs.lng,10,10)
+print("Turn to : {}".format(goal))
+Turn().turnTo(cs, goal, 60000)
+# while True:
+#     print(Turn().get_dir(cs.lat,cs.lng,10,10))
+#     Script.Sleep(100)
+#     print("Facing north? {}".format(Turn().is_facing("N", cs)))
+#     print("Facing south? {}".format(Turn().is_facing("S",cs)))
+#     print("Facing east? {}".format(Turn().is_facing("E",cs)))
+#     print("Facing west? {}".format(Turn().is_facing("W",cs)))
+#     print("Facing ne? {}".format(Turn().is_facing("NE",cs)))
+#     print("Facing se? {}".format(Turn().is_facing("SE",cs)))
+#     print("Facing sw? {}".format(Turn().is_facing("SW",cs)))
+#     print("Facing nw? {}".format(Turn().is_facing("NW",cs)))
+#     print("Direction: {}".format(Turn().d(cs)))
 
-for chan in range(1,9):
-    Script.SendRC(chan,1500,False)
-Script.SendRC(3,Script.GetParam('RC3_MIN'),True)
 
-Script.Sleep(4000)
-if cs.lat != 0:
-    print('We got a  GPS signal!')
-print('Lowering throttle voltage')
-Script.SendRC(3,1000,False)
-Script.SendRC(4,2000,True)
-cs.messages.Clear()
-print('Waiting for motors to be armed...')
-Script.WaitFor('ARMING MOTORS', 5000)
-print('Motors armed.')
 
-ground_alt = cs.alt
-target_altitude = ground_alt + 1
-print('Ground alt: {0} | Target alt: {1}'.format(ground_alt,target_altitude))
 
-#Setting yaw to not turn
-Script.SendRC(4,1500,True) # 1000 - turn left 2000 - turn right
-
-Script.SendRC(3,1500,True)
-
-while cs.sonarrange < hover_class.get_target():
-    Script.Sleep(50)
-    Script.SendRC(3,1370,True)
-
-for i in range(0,600):
-    print("Run {}".format(i))
-    cs.alt = randint(0,20)
-    cs.verticalspeed = randint(-3,3)
-    print("\tAlt: {0} \n\tVertical Speed: {1}".format(cs.alt, cs.verticalspeed))
-    hover.update(cs)
-    Script.SendRC(3,hover.hover.throttle,True)
-    Script.Sleep(100)
+# for chan in range(1,9):
+#     Script.SendRC(chan,1500,False)
+# Script.SendRC(3,Script.GetParam('RC3_MIN'),True)
+#
+# Script.Sleep(4000)
+# if cs.lat != 0:
+#     print('We got a  GPS signal!')
+# print('Lowering throttle voltage')
+# Script.SendRC(3,1000,False)
+# Script.SendRC(4,2000,True)
+# cs.messages.Clear()
+# print('Waiting for motors to be armed...')
+# Script.WaitFor('ARMING MOTORS', 5000)
+# print('Motors armed.')
+#
+# ground_alt = cs.alt
+# target_altitude = ground_alt + 1
+# print('Ground alt: {0} | Target alt: {1}'.format(ground_alt,target_altitude))
+#
+# #Setting yaw to not turn
+# Script.SendRC(4,1500,True) # 1000 - turn left 2000 - turn right
+#
+# Script.SendRC(3,1700,True)
+# Script.Sleep(500)
+#
+# while cs.sonarrange < hover_class.get_target():
+#     Script.Sleep(50)
+#     Script.SendRC(3,1370,True)
+#
+# for i in range(0,600):
+#     print("Run {}".format(i))
+#     cs.alt = randint(0,20)
+#     cs.verticalspeed = randint(-3,3)
+#     print("\tAlt: {0} \n\tVertical Speed: {1}".format(cs.alt, cs.verticalspeed))
+#     hover.update(cs)
+#     Script.SendRC(3,hover.hover.throttle,True)
+#     Script.Sleep(100)
