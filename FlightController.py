@@ -149,40 +149,43 @@ Turn().turnTo(cs, goal, 60000)
 
 
 
-# for chan in range(1,9):
-#     Script.SendRC(chan,1500,False)
-# Script.SendRC(3,Script.GetParam('RC3_MIN'),True)
+for chan in range(1,9):
+    Script.SendRC(chan,1500,False)
+Script.SendRC(3,Script.GetParam('RC3_MIN'),True)
+
+Script.Sleep(4000)
+if cs.lat != 0:
+    print('We got a  GPS signal!')
+print('Lowering throttle voltage')
+Script.SendRC(3,1000,False)
+Script.SendRC(4,2000,True)
+cs.messages.Clear()
+print('Waiting for motors to be armed...')
+Script.WaitFor('ARMING MOTORS', 5000)
+print('Motors armed.')
 #
-# Script.Sleep(4000)
-# if cs.lat != 0:
-#     print('We got a  GPS signal!')
-# print('Lowering throttle voltage')
-# Script.SendRC(3,1000,False)
-# Script.SendRC(4,2000,True)
-# cs.messages.Clear()
-# print('Waiting for motors to be armed...')
-# Script.WaitFor('ARMING MOTORS', 5000)
-# print('Motors armed.')
+ground_alt = cs.alt
+target_altitude = ground_alt + 1
+print('Ground alt: {0} | Target alt: {1}'.format(ground_alt,target_altitude))
 #
-# ground_alt = cs.alt
-# target_altitude = ground_alt + 1
-# print('Ground alt: {0} | Target alt: {1}'.format(ground_alt,target_altitude))
+#Setting yaw to not turn
+Script.SendRC(4,1500,True) # 1000 - turn left 2000 - turn right
 #
-# #Setting yaw to not turn
-# Script.SendRC(4,1500,True) # 1000 - turn left 2000 - turn right
+Script.SendRC(3,1700,True)
+Script.Sleep(500)
 #
-# Script.SendRC(3,1700,True)
-# Script.Sleep(500)
-#
-# while cs.sonarrange < hover_class.get_target():
-#     Script.Sleep(50)
-#     Script.SendRC(3,1370,True)
-#
-# for i in range(0,600):
-#     print("Run {}".format(i))
-#     cs.alt = randint(0,20)
-#     cs.verticalspeed = randint(-3,3)
-#     print("\tAlt: {0} \n\tVertical Speed: {1}".format(cs.alt, cs.verticalspeed))
-#     hover.update(cs)
-#     Script.SendRC(3,hover.hover.throttle,True)
-#     Script.Sleep(100)
+print('Lifting off')
+for i in range(3,25):
+    Script.SendRC(3,1300+(i*10),True)
+    Script.Sleep(80)
+    if cs.sonarrange >= target_altitude:
+        i=26
+
+for i in range(0,600):
+    print("Run {}".format(i))
+    cs.alt = randint(0,20)
+    cs.verticalspeed = randint(-3,3)
+    print("\tAlt: {0} \n\tVertical Speed: {1}".format(cs.alt, cs.verticalspeed))
+    hover.update(cs)
+    Script.SendRC(3,hover.hover.throttle,True)
+    Script.Sleep(100)
