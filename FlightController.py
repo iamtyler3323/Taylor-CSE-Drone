@@ -43,7 +43,10 @@ class VertSpeed:
         self.debug = debug
 
     def update(self, cs):
-        self.hover.update(cs.alt, cs.verticalspeed)
+        if cs.alt >= 3:
+            self.hover.update(cs.alt, cs.verticalspeed)
+        else:
+            self.hover.update(cs.sonarrange, cs.verticalspeed)
         self.p("\t\tThrottle: {0}\n\t\tDirection: {1}".format(self.hover.throttle, self.hover.get_direction_vertspeed()))
         if self.hover.get_direction_vertspeed() == "UP":
             if self.hover.get_target() < self.hover.get_alt():
@@ -62,11 +65,11 @@ class VertSpeed:
         elif self.hover.get_direction_vertspeed() == "STABLE":
             if self.hover.get_target() < self.hover.get_alt():
                 self.p("\t\tUpdating throttle...\n\t\tOld throttle: {}".format(self.hover.throttle))
-                self.hover.throttle -= 5
+                self.hover.throttle -= 10
                 self.p("\t\tNew throttle: {}".format(self.hover.throttle))
             elif self.hover.get_target() > self.hover.get_alt():
                 self.p("\t\t\t\tUpdating throttle...\n\t\t\t\tOld throttle: {}".format(self.hover.throttle))
-                self.hover.throttle += 5
+                self.hover.throttle += 15
                 self.p("\t\t\t\tNew throttle: {}".format(self.hover.throttle))
 
     def p(self, string):
@@ -130,9 +133,6 @@ if hover_type == 0:
     hover = VertSpeed(hover_class, True)
 
 print("Start")
-goal = Turn().get_dir_to(cs.lat,cs.lng,10,10)
-print("Turn to : {}".format(goal))
-Turn().turnTo(cs, goal, 60000)
 # while True:
 #     print(Turn().get_dir(cs.lat,cs.lng,10,10))
 #     Script.Sleep(100)
@@ -145,10 +145,6 @@ Turn().turnTo(cs, goal, 60000)
 #     print("Facing sw? {}".format(Turn().is_facing("SW",cs)))
 #     print("Facing nw? {}".format(Turn().is_facing("NW",cs)))
 #     print("Direction: {}".format(Turn().d(cs)))
-
-
-
-
 for chan in range(1,9):
     Script.SendRC(chan,1500,False)
 Script.SendRC(3,Script.GetParam('RC3_MIN'),True)
@@ -171,21 +167,39 @@ print('Ground alt: {0} | Target alt: {1}'.format(ground_alt,target_altitude))
 #Setting yaw to not turn
 Script.SendRC(4,1500,True) # 1000 - turn left 2000 - turn right
 #
-Script.SendRC(3,1700,True)
-Script.Sleep(500)
 #
 print('Lifting off')
 for i in range(3,25):
     Script.SendRC(3,1300+(i*10),True)
+    hover.hover.throttle = 1300+(i*10)
+    print("Throttle: {}".format(1300+(i*10)))
     Script.Sleep(80)
     if cs.sonarrange >= target_altitude:
         i=26
+timer = 60000
 
-for i in range(0,600):
-    print("Run {}".format(i))
-    cs.alt = randint(0,20)
-    cs.verticalspeed = randint(-3,3)
-    print("\tAlt: {0} \n\tVertical Speed: {1}".format(cs.alt, cs.verticalspeed))
+while timer >= 0:
+    #print("Run {}".format(i))
+    #print("\tAlt: {0} \n\tVertical Speed: {1}".format(cs.alt, cs.verticalspeed))
+    print("{}".format(cs.alt))
+    if cs.roll > 3:
+        Script.SendRC(1,1450,True)
+    elif cs.roll < -3:
+        Script.SendRC(1,1550,True)
+    else:
+        Script.SendRC(1,1550,True)
+
+    if cs.pitch > 3:
+        Script.SendRC(2,1450,True)
+    elif cs.pitch < -3:
+        Script.SendRC(2,1550,True)
+    else:
+        Script.SendRC(2,1550,True)
     hover.update(cs)
     Script.SendRC(3,hover.hover.throttle,True)
+    Script.Sleep(100)
+    timer -= 100
+
+while cs.sonarrange > 0.5:
+    Script.SendRC(3,1300,True)
     Script.Sleep(100)
