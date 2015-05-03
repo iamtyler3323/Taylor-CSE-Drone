@@ -200,6 +200,19 @@ while timer >= 0:
     Script.Sleep(100)
     timer -= 100
 
-while cs.sonarrange > 0.5:
-    Script.SendRC(3,1300,True)
-    Script.Sleep(100)
+print('Descending...')
+for i in range(3,15):
+    Script.SendRC(3,1530-(i*1),True)
+    Script.Sleep(50)
+    if cs.alt <= ground_alt+0.1:
+        break
+Script.SendRC(3,1515,True)
+while cs.alt > ground_alt+0.1:
+    Script.Sleep(50)
+    print('Descent at: {0}'.format(cs.alt))
+
+Script.SendRC(3,1000,False)
+Script.SendRC(4,1000,True)
+Script.WaitFor('DISARMING MOTORS',30000)
+Script.SendRC(4,1500,True)
+
