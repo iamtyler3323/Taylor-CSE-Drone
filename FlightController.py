@@ -51,14 +51,14 @@ class VertSpeed:
         if self.hover.get_direction_vertspeed() == "UP":
             if self.hover.get_target() < self.hover.get_alt():
                 self.p("\t\tUpdating throttle...\n\t\tOld throttle: {}".format(self.hover.throttle))
-                self.hover.throttle -= self.hover.get_speed()
+                self.hover.throttle -= self.hover.get_speed() * 5
                 self.p("\t\tNew throttle: {}".format(self.hover.throttle))
             else:
                 self.p("\t\tGoing up, keep her steady!\n\t\tAltitude: {0}\n\t\tDirection: {1}\n\t\tThrottle: {2}".format(self.hover.get_alt(), self.hover.get_direction_vertspeed(), self.hover.throttle))
         elif self.hover.get_direction_vertspeed() == "DOWN":
             if self.hover.get_target() > self.hover.get_alt():
                 self.p("\t\tUpdating throttle...\n\t\tOld throttle: {}".format(self.hover.throttle))
-                self.hover.throttle += self.hover.get_speed()
+                self.hover.throttle += self.hover.get_speed() * 7
                 self.p("\t\tNew throttle: {}".format(self.hover.throttle))
             else:
                 self.p("\t\tGoing down, keep her steady!\n\t\tAltitude: {0}\n\t\tDirection: {1}\n\t\tThrottle: {2}".format(self.hover.get_alt(), self.hover.get_direction_vertspeed(), self.hover.throttle))
@@ -187,14 +187,14 @@ while timer >= 0:
     elif cs.roll < -3:
         Script.SendRC(1,1550,True)
     else:
-        Script.SendRC(1,1550,True)
+        Script.SendRC(1,1500,True)
 
     if cs.pitch > 3:
         Script.SendRC(2,1450,True)
     elif cs.pitch < -3:
         Script.SendRC(2,1550,True)
     else:
-        Script.SendRC(2,1550,True)
+        Script.SendRC(2,1500,True)
     hover.update(cs)
     Script.SendRC(3,hover.hover.throttle,True)
     Script.Sleep(100)
